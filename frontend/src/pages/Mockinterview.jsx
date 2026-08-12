@@ -293,7 +293,7 @@ export default function MockInterview() {
                         rows={6}
                         value={jobDescription}
                         onChange={(e) => setJobDescription(e.target.value)}
-                        placeholder="Job description paste karo..."
+                        placeholder="Paste You JD Here..."
                         className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 mb-6 text-white text-sm focus:outline-none focus:border-blue-500 resize-none"
                     />
 
@@ -302,7 +302,7 @@ export default function MockInterview() {
                         disabled={loadingStart}
                         className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition disabled:opacity-50"
                     >
-                        {loadingStart ? "Questions generate ho rahe hain..." : "🚀 Start Interview"}
+                        {loadingStart ? "Questions are generating ..." : "🚀 Start Interview"}
                     </button>
                 </div>
             </div>
