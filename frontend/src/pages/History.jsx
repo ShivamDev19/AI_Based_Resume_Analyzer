@@ -32,16 +32,18 @@ const History = () => {
   return (
     <>
       <div className="min-h-screen bg-gray-950 text-white">
-        <div className="max-w-4xl mx-auto px-6 py-10">
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold">Analysis History</h1>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+
+          {/* Header */}
+          <div className="mb-6 sm:mb-8">
+            <h1 className="text-xl sm:text-2xl font-bold">Analysis History</h1>
             <p className="text-gray-400 text-sm mt-1">All your previously analyzed resumes</p>
           </div>
 
           {loading ? (
             <div className="text-center py-16 text-gray-500">Loading...</div>
           ) : history.length === 0 ? (
-            <div className="text-center py-16 border border-dashed border-gray-800 rounded-2xl">
+            <div className="text-center py-12 sm:py-16 border border-dashed border-gray-800 rounded-2xl px-4">
               <p className="text-gray-500">No analyzed resumes yet</p>
               <p className="text-gray-600 text-sm mt-1">Upload and analyze a resume to see history</p>
               <button
@@ -52,23 +54,28 @@ const History = () => {
               </button>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {history.map((resume) => (
                 <div
                   key={resume._id}
-                  className="bg-gray-900 border border-gray-800 rounded-xl px-6 py-5 flex items-center justify-between hover:border-gray-700 transition cursor-pointer"
+                  className="bg-gray-900 border border-gray-800 rounded-xl px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-between hover:border-gray-700 transition cursor-pointer gap-3"
                   onClick={() => navigate(`/resume/${resume._id}`)}
                 >
-                  <div>
-                    <p className="font-medium text-white">{resume.originalName}</p>
+                  {/* Resume info */}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-white text-sm sm:text-base truncate">
+                      {resume.originalName}
+                    </p>
                     <p className="text-gray-500 text-xs mt-1">
                       Analyzed on {new Date(resume.updatedAt).toLocaleDateString('en-IN', {
                         day: 'numeric', month: 'short', year: 'numeric'
                       })}
                     </p>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="bg-green-500/10 text-green-400 border border-green-500/20 text-xs font-medium px-3 py-1 rounded-full">
+
+                  {/* Badge + Arrow */}
+                  <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                    <span className="bg-green-500/10 text-green-400 border border-green-500/20 text-xs font-medium px-2 sm:px-3 py-1 rounded-full whitespace-nowrap">
                       Analyzed
                     </span>
                     <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
