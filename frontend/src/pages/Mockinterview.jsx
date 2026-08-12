@@ -38,13 +38,14 @@ export default function MockInterview() {
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [answers, setAnswers] = useState([]);
+    const [answered, setAnswered] = useState(false); // FIX — double submit guard
 
     const [result, setResult] = useState(null);
     const [finishing, setFinishing] = useState(false);
 
     const recognitionRef = useRef(null);
-    const isListeningRef = useRef(false);   // FIX — stale closure problem solve
-    const transcriptRef = useRef("");        // FIX — transcript accumulate properly
+    const isListeningRef = useRef(false);
+    const transcriptRef = useRef("");
 
     useEffect(() => {
         const fetchResumes = async () => {
@@ -62,7 +63,6 @@ export default function MockInterview() {
         fetchResumes();
     }, []);
 
-    // FIX — recognition properly setup with auto-restart
     const startListening = () => {
         const SpeechRecognition =
             window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -92,18 +92,16 @@ export default function MockInterview() {
                 }
             }
 
-            // FIX — final text ref mein accumulate karo, interim alag dikhao
             if (finalText) {
                 transcriptRef.current += finalText + " ";
             }
             setTranscript(transcriptRef.current + interimText);
         };
 
-        // FIX — auto restart on pause (browser silence detection pe stop karta hai)
         recognition.onend = () => {
             if (isListeningRef.current) {
                 try {
-                    recognition.start(); // restart if user ne manually stop nahi kiya
+                    recognition.start();
                 } catch (e) {
                     console.log("Restart failed:", e);
                 }
@@ -113,8 +111,8 @@ export default function MockInterview() {
         };
 
         recognition.onerror = (e) => {
-            if (e.error === "no-speech") return; // ignore — restart hoga automatically
-            if (e.error === "aborted") return;   // ignore — manual stop
+            if (e.error === "no-speech") return;
+            if (e.error === "aborted") return;
             console.error("Recognition error:", e.error);
         };
 
@@ -159,6 +157,7 @@ export default function MockInterview() {
             setInterviewId(data.interview_id);
             setQuestions(data.questions);
             setPhase(PHASES.INTERVIEWING);
+            setAnswered(false);
 
             setTimeout(() => askQuestion(data.questions[0], 0), 500);
         } catch (err) {
@@ -178,12 +177,15 @@ export default function MockInterview() {
     };
 
     const handleSubmitAnswer = async () => {
+        if (answered) return; // FIX — already answered, block karo
+
         const finalAnswer = transcriptRef.current.trim();
         if (!finalAnswer) {
             alert("Pehle mic pe answer do.");
             return;
         }
         stopListening();
+        setAnswered(true); // FIX — lock current question
         setSubmitting(true);
 
         try {
@@ -214,6 +216,7 @@ export default function MockInterview() {
                     const nextIndex = currentIndex + 1;
                     if (nextIndex < questions.length) {
                         setCurrentIndex(nextIndex);
+                        setAnswered(false); // FIX — unlock next question ke liye
                         transcriptRef.current = "";
                         setTranscript("");
                         setTimeout(() => askQuestion(questions[nextIndex], nextIndex), 800);
@@ -226,6 +229,7 @@ export default function MockInterview() {
             );
         } catch (err) {
             alert("Error: " + err.message);
+            setAnswered(false); // error pe unlock karo — retry ho sake
         } finally {
             setSubmitting(false);
         }
@@ -262,7 +266,7 @@ export default function MockInterview() {
                 <div className="w-full max-w-xl bg-gray-900 rounded-2xl p-8 shadow-2xl">
                     <h1 className="text-2xl font-bold text-blue-400 mb-1">🎙️ AI Mock Interview</h1>
                     <p className="text-gray-400 text-sm mb-6">
-                        Resume + JD select karo — AI voice interview lega
+                        Select Your Resume + JD To Take — AI-Powered Mock Interview
                     </p>
 
                     <label className="block text-sm text-gray-400 mb-1">Select Resume</label>
@@ -271,7 +275,7 @@ export default function MockInterview() {
                         onChange={(e) => setSelectedResume(e.target.value)}
                         className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 mb-4 text-white focus:outline-none focus:border-blue-500"
                     >
-                        <option value="">-- Resume choose karo --</option>
+                        <option value="">-- Select Resume --</option>
                         {resumes.map((r) => (
                             <option key={r._id} value={r._id}>
                                 {r.originalName}
@@ -280,7 +284,7 @@ export default function MockInterview() {
                     </select>
                     {resumes.length === 0 && (
                         <p className="text-xs text-yellow-400 mb-4">
-                            ⚠️ Koi parsed resume nahi mila. Pehle Dashboard mein resume upload aur parse karo.
+                            ⚠️ No resumes found. Please upload a resume in the Dashboard first.
                         </p>
                     )}
 
@@ -307,8 +311,11 @@ export default function MockInterview() {
 
     // ── INTERVIEW PHASE ────────────────────────────────────────────────────────
     if (phase === PHASES.INTERVIEWING) {
-        const progress = Math.round((answers.length / questions.length) * 100);
-        
+        // FIX — answers.length se progress, 100% cap
+        const progress = Math.min(
+            Math.round((answers.length / questions.length) * 100),
+            100
+        );
 
         return (
             <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center justify-center px-4 py-10">
@@ -333,7 +340,7 @@ export default function MockInterview() {
                                 Q{currentIndex + 1}
                             </span>
                             {isSpeaking && (
-                                <span className="text-blue-400 text-xs animate-pulse">🔊 AI bol raha hai...</span>
+                                <span className="text-blue-400 text-xs animate-pulse">🔊 Listen to the Question Carefully...</span>
                             )}
                         </div>
                         <p className="text-white text-lg leading-relaxed">
@@ -344,15 +351,14 @@ export default function MockInterview() {
                     <div className="bg-gray-900 rounded-2xl p-5 mb-6 border border-gray-800 min-h-[100px]">
                         <p className="text-xs text-gray-500 mb-2">Your Answer (Live Transcript)</p>
                         <p className="text-gray-200 text-sm leading-relaxed">
-                            {transcript || (isListening ? "🎤 Sun raha hoon... bol!" : "Mic button press karo aur bolo...")}
+                            {transcript || (isListening ? "🎤 Listening..." : "Click the microphone to start recording...")}
                         </p>
                     </div>
-                    
 
                     <div className="flex gap-4">
                         <button
                             onClick={toggleMic}
-                            disabled={isSpeaking || submitting}
+                            disabled={isSpeaking || submitting || answered}
                             className={`flex-1 py-4 rounded-xl font-semibold text-white transition text-lg
                                 ${isListening
                                     ? "bg-red-600 hover:bg-red-700 animate-pulse"
@@ -362,12 +368,13 @@ export default function MockInterview() {
                             {isListening ? "🔴 Stop Recording" : "🎤 Start Recording"}
                         </button>
 
+                        {/* FIX — answered bhi disable condition mein add kiya */}
                         <button
                             onClick={handleSubmitAnswer}
-                            disabled={!transcript.trim() || submitting || isSpeaking}
+                            disabled={!transcript.trim() || submitting || isSpeaking || answered}
                             className="flex-1 py-4 rounded-xl font-semibold bg-green-600 hover:bg-green-700 text-white transition disabled:opacity-40"
                         >
-                            {submitting ? "Evaluating..." : "✅ Submit Answer"}
+                            {submitting ? "Evaluating..." : answered ? "✅ Submitted" : "✅ Submit Answer"}
                         </button>
                     </div>
 
@@ -445,6 +452,7 @@ export default function MockInterview() {
                                 setTranscript("");
                                 transcriptRef.current = "";
                                 setResult(null);
+                                setAnswered(false);
                             }}
                             className="flex-1 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 font-semibold transition"
                         >
