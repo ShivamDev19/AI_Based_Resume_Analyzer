@@ -99,26 +99,27 @@ const Dashboard = () => {
   return (
     <>
       <div className="min-h-screen bg-gray-950 text-white">
-        <div className="max-w-5xl mx-auto px-6 py-10">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
 
           {/* Welcome */}
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold text-white">
+          <div className="mb-6 sm:mb-8">
+            <h1 className="text-xl sm:text-2xl font-bold text-white">
               Welcome back, <span className="text-blue-400">{user?.name}</span> 👋
             </h1>
             <p className="text-gray-400 text-sm mt-1">Upload your resume and get AI-powered feedback</p>
           </div>
 
           {/* Upload Section */}
-          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8 mb-8">
-            <h2 className="text-xl font-semibold mb-1">Upload Resume</h2>
-            <p className="text-gray-400 text-sm mb-6">Upload your PDF resume to get AI-powered feedback</p>
+          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5 sm:p-8 mb-6 sm:mb-8">
+            <h2 className="text-lg sm:text-xl font-semibold mb-1">Upload Resume</h2>
+            <p className="text-gray-400 text-sm mb-4 sm:mb-6">Upload your PDF resume to get AI-powered feedback</p>
 
-            <form onSubmit={handleUpload} className="flex items-center gap-4">
+            {/* Mobile: column, Desktop: row */}
+            <form onSubmit={handleUpload} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
               <label className="flex-1 cursor-pointer">
-                <div className="border-2 border-dashed border-gray-700 hover:border-blue-500 rounded-xl px-6 py-5 transition text-center">
+                <div className="border-2 border-dashed border-gray-700 hover:border-blue-500 rounded-xl px-4 sm:px-6 py-4 sm:py-5 transition text-center">
                   {file ? (
-                    <p className="text-blue-400 text-sm font-medium">{file.name}</p>
+                    <p className="text-blue-400 text-sm font-medium break-all">{file.name}</p>
                   ) : (
                     <>
                       <p className="text-gray-400 text-sm">Click to select PDF file</p>
@@ -136,7 +137,7 @@ const Dashboard = () => {
               <button
                 type="submit"
                 disabled={uploading || !file}
-                className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold px-6 py-3 rounded-xl transition"
+                className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold px-6 py-3 rounded-xl transition w-full sm:w-auto"
               >
                 {uploading ? "Uploading..." : "Upload"}
               </button>
@@ -145,7 +146,7 @@ const Dashboard = () => {
 
           {/* Resume List */}
           <div>
-            <h2 className="text-xl font-semibold mb-4">My Resumes</h2>
+            <h2 className="text-lg sm:text-xl font-semibold mb-4">My Resumes</h2>
 
             {loading ? (
               <div className="text-center py-16 text-gray-500">Loading...</div>
@@ -155,11 +156,15 @@ const Dashboard = () => {
                 <p className="text-gray-600 text-sm mt-1">Upload your first resume above</p>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {resumes.map((resume) => (
-                  <div key={resume._id} className="bg-gray-900 border border-gray-800 rounded-xl px-6 py-5 flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-white">{resume.originalName}</p>
+                  <div
+                    key={resume._id}
+                    className="bg-gray-900 border border-gray-800 rounded-xl px-4 sm:px-6 py-4 sm:py-5 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-0 sm:justify-between"
+                  >
+                    {/* Resume info */}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-white text-sm sm:text-base truncate">{resume.originalName}</p>
                       <p className="text-gray-500 text-xs mt-1">
                         {new Date(resume.createdAt).toLocaleDateString('en-IN', {
                           day: 'numeric', month: 'short', year: 'numeric'
@@ -169,18 +174,19 @@ const Dashboard = () => {
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    {/* Action buttons */}
+                    <div className="flex items-center gap-2 sm:gap-3">
                       {resume.isAnalyzed ? (
                         <button
                           onClick={() => navigate(`/resume/${resume._id}`)}
-                          className="bg-green-600 hover:bg-green-500 text-white text-sm font-medium px-4 py-2 rounded-lg transition"
+                          className="flex-1 sm:flex-none bg-green-600 hover:bg-green-500 text-white text-sm font-medium px-4 py-2 rounded-lg transition"
                         >
                           View Analysis
                         </button>
                       ) : resume.pdf_content ? (
                         <button
                           onClick={() => navigate(`/resume/${resume._id}`)}
-                          className="bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium px-4 py-2 rounded-lg transition"
+                          className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium px-4 py-2 rounded-lg transition"
                         >
                           Analyze
                         </button>
@@ -188,7 +194,7 @@ const Dashboard = () => {
                         <button
                           onClick={() => handleParse(resume._id)}
                           disabled={parsing === resume._id}
-                          className="bg-yellow-600 hover:bg-yellow-500 disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-lg transition"
+                          className="flex-1 sm:flex-none bg-yellow-600 hover:bg-yellow-500 disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-lg transition"
                         >
                           {parsing === resume._id ? "Parsing..." : "Parse"}
                         </button>
@@ -196,7 +202,7 @@ const Dashboard = () => {
 
                       <button
                         onClick={() => handleDelete(resume._id)}
-                        className="text-gray-500 hover:text-red-400 transition p-2 rounded-lg hover:bg-red-400/10"
+                        className="text-gray-500 hover:text-red-400 transition p-2 rounded-lg hover:bg-red-400/10 shrink-0"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
