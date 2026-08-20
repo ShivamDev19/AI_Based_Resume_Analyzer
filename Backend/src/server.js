@@ -1,7 +1,9 @@
 const express = require('express');
 require('dotenv').config();
+
 const app = require('./app');
 const dbConnect = require('./db/db');
+const groq = require('./config/aiConfig'); // ← ADD THIS
 
 dbConnect();
 
