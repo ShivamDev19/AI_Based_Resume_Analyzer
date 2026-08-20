@@ -31,7 +31,7 @@ Example format: ["Question 1?", "Question 2?", "Question 3?", "Question 4?", "Qu
 
         const completion = await groq.chat.completions.create({
             messages: [{ role: 'user', content: prompt }],
-            model: 'llama-3.1-8b-instant',
+            model: 'llama-3.3-70b-versatile',
         });
 
         const raw = completion.choices[0].message.content.trim();
@@ -92,7 +92,7 @@ Return ONLY valid JSON in this exact format:
 
         const completion = await groq.chat.completions.create({
             messages: [{ role: 'user', content: prompt }],
-            model: 'llama-3.1-8b-instant',
+            model: 'llama-3.3-70b-versatile',
         });
 
         const raw = completion.choices[0].message.content.trim();
@@ -161,7 +161,7 @@ Return only plain text — no JSON, no markdown.`;
 
         const completion = await groq.chat.completions.create({
             messages: [{ role: 'user', content: prompt }],
-            model: 'llama-3.1-8b-instant',
+            model: 'llama-3.3-70b-versatile',
         });
 
         const finalFeedback = completion.choices[0].message.content.trim();
