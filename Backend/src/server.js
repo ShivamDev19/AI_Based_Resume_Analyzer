@@ -9,21 +9,19 @@ dbConnect();
 app.listen(process.env.PORT, async () => {
     console.log(`Server is running on port ${process.env.PORT}`);
 
-    console.log("GROQ KEY EXISTS:", !!process.env.GROQ_API_KEY);
+    console.log("========== GROQ TEST ==========");
+    console.log("API KEY EXISTS:", !!process.env.GROQ_API_KEY);
 
     try {
         const models = await groq.models.list();
 
-        console.log("========== GROQ MODELS ==========");
+        console.log("MODELS:");
+        console.log(models.data.map(model => model.id));
 
-        models.data.forEach(model => {
-            console.log(model.id);
-        });
-
-        console.log("=================================");
-    } catch (err) {
-        console.error("========== GROQ LIST ERROR ==========");
-        console.error(err.message);
-        console.error("======================================");
+    } catch (error) {
+        console.error("GROQ TEST FAILED:");
+        console.error(error.message);
     }
+
+    console.log("================================");
 });
