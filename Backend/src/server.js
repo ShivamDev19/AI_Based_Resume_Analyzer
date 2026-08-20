@@ -1,4 +1,3 @@
-const express = require('express');
 require('dotenv').config();
 
 const app = require('./app');
@@ -15,13 +14,16 @@ app.listen(process.env.PORT, async () => {
     try {
         const models = await groq.models.list();
 
-        console.log("AVAILABLE GROQ MODELS:");
+        console.log("========== GROQ MODELS ==========");
 
         models.data.forEach(model => {
             console.log(model.id);
         });
 
+        console.log("=================================");
     } catch (err) {
-        console.error("GROQ MODEL LIST ERROR:", err.message);
+        console.error("========== GROQ LIST ERROR ==========");
+        console.error(err.message);
+        console.error("======================================");
     }
 });
